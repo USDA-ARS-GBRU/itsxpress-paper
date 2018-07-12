@@ -53,25 +53,24 @@ for file in $ITS2/r1/*
 
 
 
-## Dereplicate the paired end merged fasta files saving merging data
-
+## Cluster the merged fasta files at 98.7% identity as specified in the itsxpress.definitions.cluster_id variable
 echo "Details about vsearch merging are in the files $ITS1_derep_report and $ITS2_derep_report"
 
 for file in $ITS1_merged/*
   do
   	bname=`basename $file`
-    vsearch  --derep_fulllength $file --output $ITS1_derep/$bname --strand both --threads 2  2>> $ITS1_derep_report
+    vsearch  --cluster_size $file --centroids $ITS1_derep/$bname --strand both --id 0.987 --threads 38  2>> $ITS1_derep_report
   done
 
 for file in $ITS2_merged/*
   do
     bname=`basename $file`
-    vsearch  --derep_fulllength $file --output $ITS2_derep/$bname --strand both --threads 2 2>> $ITS2_derep_report
+    vsearch  --cluster_size $file --centroids $ITS2_derep/$bname --strand both ----id 0.987 --threads 38 2>> $ITS2_derep_report
   done
   
 # Create a tabular report of the dereplication process
-python derep.py -i $ITS1_derep_report -o $ITS1_derep_csv 
-python derep.py -i $ITS2_derep_report -o $ITS2_derep_csv
+python derep.py -i $ITS1_derep_report -t cluster -o $ITS1_derep_csv 
+python derep.py -i $ITS2_derep_report -t cluster -o $ITS2_derep_csv
 
 ## Slurm Job submission
 

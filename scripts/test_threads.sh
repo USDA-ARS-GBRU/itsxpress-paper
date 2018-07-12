@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=its_threads
-#SBATCH --time=6:00:00
+#SBATCH --time=08:00:00
 #SBATCH --array=1-6
 #SBATCH -p short
 #SBATCH -N 1
@@ -10,7 +10,7 @@
 #source activate itsxpresstestenv
 source activate /project/gbru_fy18_soybean_gardner/biopythontestenv/
 
-echo "Usage test_threads.sh [merged file] [forward file] [reverse file] [sampletype its1|its2]"
+echo "Usage test_threads.sh [merged file] [forward file] [reverse file] [output dir] [sampletype its1|its2]"
 echo "My SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID
 echo "My TMPDIR IS: " $TMPDIR
 
@@ -19,7 +19,8 @@ threadarray=(1 4 8 16 30 40)
 itsxfile=$1
 finfile=$2
 rinfile=$3
-sampletype=$4
+output=$4
+sampletype=$5
 
 THREADS=${threadarray[$SLURM_ARRAY_TASK_ID - 1]}
 

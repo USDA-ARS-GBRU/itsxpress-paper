@@ -55,6 +55,8 @@ for file in $ITS2/r1/*
 
 ## Dereplicate the paired end merged fasta files saving merging data
 
+echo "Details about vsearch merging are in the files $ITS1_derep_report and $ITS2_derep_report"
+
 for file in $ITS1_merged/*
   do
   	bname=`basename $file`
@@ -74,14 +76,19 @@ python derep.py -i $ITS2_derep_report -o $ITS2_derep_csv
 ## Slurm Job submission
 
 # submit Array job to test timing of different samples using itsxress and itsx 
-seq $reps | xargs -Iz sbatch --output=../output/its1_samples_%A_%a.out --error=../output/its1_samples_%A_%a.err test_samples.sh $ITS1 $ITS1_merged ../output/ ITS1
-seq $reps | xargs -Iz sbatch --output=../output/its2_samples_%A_%a.out --error=../output/its2_samples_%A_%a.err test_samples.sh $ITS2 $ITS2_merged ../output/ ITS2
-
+for run in {1..5}
+do
+  sbatch --output=../output/its1_samples_%A_%a.out --error=../output/its1_samples_%A_%a.err test_samples.sh $ITS1 $ITS1_merged ../output/ ITS1
+  sbatch --output=../output/its2_samples_%A_%a.out --error=../output/its2_samples_%A_%a.err test_samples.sh $ITS2 $ITS2_merged ../output/ ITS2
+done
 
 #SBATCH --output=its_threads_%A_%a.out
 #SBATCH --error=its1-big-threads_%A_%a.err
 
 # submit Array job to test timing of itsxress and itsx with different numbers of threads for the largest sample
 
-seq $reps | xargs -Iz sbatch --output=../output/its1_threads_%A_%a.out  --error=../output/its1-threads_%A_%a.err test_threads.sh $ITS1_merged/4774-4-MSITS2a.fasta  $ITS1/r1/4774-4-MSITS2a_R1.fastq.gz $ITS1/r2/4774-4-MSITS2a_R2.fastq.gz ITS1
-seq $reps | xargs -Iz sbatch --output=../output/its2_threads_%A_%a.out  --error=../output/its2-threads_%A_%a.err test_threads.sh $ITS2_merged/4774-13-MSITS3.fasta $ITS2/r1/4774-4-MSITS3_R1.fastq.gz $ITS2/r2/4774-4-MSITS3_R2.fastq.gz ITS2
+for run in {1..5}
+do
+	sbatch --output=../output/its1_threads_%A_%a.out  --error=../output/its1-threads_%A_%a.err test_threads.sh $ITS1_merged/4774-4-MSITS2a.fasta $ITS1/r1/4774-4-MSITS2a_R1.fastq.gz $ITS1/r2/4774-4-MSITS2a_R2.fastq.gz ../output/ ITS1
+	sbatch --output=../output/its2_threads_%A_%a.out  --error=../output/its2-threads_%A_%a.err test_threads.sh $ITS2_merged/4774-13-MSITS3.fasta $ITS2/r1/4774-4-MSITS3_R1.fastq.gz $ITS2/r2/4774-4-MSITS3_R2.fastq.gz ../output/ ITS2
+done

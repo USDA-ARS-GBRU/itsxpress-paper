@@ -16,13 +16,14 @@ def myparser():
 	parser = argparse.ArgumentParser(description="dedup.py: format vsearch output files")
 	parser.add_argument('--infile', '-i', type=str, required=True,
 						help='The error log produced from vsearch')
-
+	parser.add_argument('--type', '-t', choices=["dedup", "cluster"],
+						help='A csv file of filename, seqs, unique seqs, and the fraction unique')
 	parser.add_argument('--outfile', '-o', type=str, required=True,
 						help='A csv file of filename, seqs, unique seqs, and the fraction unique')
 	return parser
 
 
-def parse(filename):
+def parse(filename, type):
 	""" parses Vsearch output returning a pandas dataframe
 	
 	"""
@@ -35,8 +36,10 @@ def parse(filename):
 					dat["sample"].append(os.path.basename(ll[2]))
 				elif ll[1] == 'nt':
 					dat["seqs"].append(int(ll[3]))
-				elif ll[1] == 'unique':
-					dat["unique"].append(int(ll[0]))		
+				elif ll[1] == 'unique' and type =='dedup':
+					dat["unique"].append(int(ll[0]))
+				elif ll[0] == 'Clusters:' and type =='cluster':
+					dat["unique"].append(int(ll[1]))		
 	# Add fraction column
 	dat["frac"] = list(np.array(dat['unique'])/np.array(dat['seqs']))
 	# Create dataframe
@@ -51,7 +54,7 @@ def main(args=None):
 	parser = myparser()
 	if not args:
 		args = parser.parse_args()
-	df = parse(args.infile)
+	df = parse(filename=args.infile, type=args.type)
 	df.to_csv(args.outfile)
 		
 if __name__ == '__main__':

@@ -16,7 +16,7 @@ def myparser():
 	"""Creates parser object
 	
 	"""
-	parser = argparse.ArgumentParser(description="dedup.py: format vsearch output files")
+	parser = argparse.ArgumentParser(description="parsetiming.py: A script to reformat slurm log files.")
 	parser.add_argument('--indir', '-i', type=str, required=True,
 						help='The error log produced from vsearch')
 
@@ -91,7 +91,7 @@ def parse_filename(file):
 	"""
 	try:
 		basename = os.path.basename(file)
-		bdict = basename.strip().split("_")
+		bdict = re.split('\W+|_', basename.strip())
 		region = bdict[0]
 		exptype = bdict[1]
 		jobid = bdict[2]

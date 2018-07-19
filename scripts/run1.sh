@@ -11,7 +11,7 @@
 # conda install -c bioconda itsxpress=1.5.6 itsx=1.1b
 
 ## global variables:
-
+OUTPUT=../output3
 # Directory for ITS1 fastq files; 15 files in both the r1 and r2 subdirectories
 ITS1=../data/its1
 # Directory for ITS2 fastq files;; 15 files in both the r1 and r2 subdirectories
@@ -25,10 +25,10 @@ ITS1_derep=../data/its1_derep
 # Directory for dereplicated merged ITS1 fasta files
 ITS2_derep=../data/its2_derep
 # files for summarizing vsearch data
-ITS1_derep_report=../output/its1_derep_report.txt
-ITS2_derep_report=../output/its2_derep_report.txt
-ITS1_derep_csv=../output/its1_derep_csv.txt
-ITS2_derep_csv=../output/its2_derep_csv.txt
+ITS1_derep_report=$OUTPUT/its1_derep_report.txt
+ITS2_derep_report=$OUTPUT/its2_derep_report.txt
+ITS1_derep_csv=$OUTPUT/its1_derep_csv.txt
+ITS2_derep_csv=$OUTPUT/its2_derep_csv.txt
 # Set the number of experimental reps
 reps=5
 
@@ -36,7 +36,7 @@ reps=5
 #source activate itsxpresstestenv
 source activate /project/gbru_fy18_soybean_gardner/biopythontestenv/
 
-## Generate fasta files from fastq files
+# Generate fasta files from fastq files
 for file in $ITS1/r1/*
   do
   	bname=`basename $file _R1.fastq.gz`
@@ -52,20 +52,19 @@ for file in $ITS2/r1/*
   
 
 
-
-## Cluster the merged fasta files at 98.7% identity as specified in the itsxpress.definitions.cluster_id variable
+## Cluster the merged fasta files at 99.5% identity as specified in the --cluster_id flag
 echo "Details about vsearch merging are in the files $ITS1_derep_report and $ITS2_derep_report"
 
 for file in $ITS1_merged/*
   do
   	bname=`basename $file`
-    vsearch  --cluster_size $file --centroids $ITS1_derep/$bname --strand both --id 0.987 --threads 38  2>> $ITS1_derep_report
+    vsearch  --cluster_size $file --centroids $ITS1_derep/$bname --strand both --id 0.995 --threads 8  2>> $ITS1_derep_report
   done
 
 for file in $ITS2_merged/*
   do
     bname=`basename $file`
-    vsearch  --cluster_size $file --centroids $ITS2_derep/$bname --strand both ----id 0.987 --threads 38 2>> $ITS2_derep_report
+    vsearch  --cluster_size $file --centroids $ITS2_derep/$bname --strand both --id 0.995 --threads 8 2>> $ITS2_derep_report
   done
   
 # Create a tabular report of the dereplication process
@@ -77,8 +76,8 @@ python derep.py -i $ITS2_derep_report -t cluster -o $ITS2_derep_csv
 # submit Array job to test timing of different samples using itsxress and itsx 
 for run in {1..5}
 do
-  sbatch --output=../output/its1_samples_%A_%a.out --error=../output/its1_samples_%A_%a.err test_samples.sh $ITS1 $ITS1_merged ../output/ ITS1
-  sbatch --output=../output/its2_samples_%A_%a.out --error=../output/its2_samples_%A_%a.err test_samples.sh $ITS2 $ITS2_merged ../output/ ITS2
+  sbatch --output=$OUTPUT/its1_samples_%A_%a.out --error=$OUTPUT/its1_samples_%A_%a.err test_samples.sh $ITS1 $ITS1_merged $OUTPUT ITS1
+  sbatch --output=$OUTPUT/its2_samples_%A_%a.out --error=$OUTPUT/its2_samples_%A_%a.err test_samples.sh $ITS2 $ITS2_merged $OUTPUT ITS2
 done
 
 #SBATCH --output=its_threads_%A_%a.out
@@ -88,6 +87,6 @@ done
 
 for run in {1..5}
 do
-	sbatch --output=../output/its1_threads_%A_%a.out  --error=../output/its1-threads_%A_%a.err test_threads.sh $ITS1_merged/4774-4-MSITS2a.fasta $ITS1/r1/4774-4-MSITS2a_R1.fastq.gz $ITS1/r2/4774-4-MSITS2a_R2.fastq.gz ../output/ ITS1
-	sbatch --output=../output/its2_threads_%A_%a.out  --error=../output/its2-threads_%A_%a.err test_threads.sh $ITS2_merged/4774-13-MSITS3.fasta $ITS2/r1/4774-4-MSITS3_R1.fastq.gz $ITS2/r2/4774-4-MSITS3_R2.fastq.gz ../output/ ITS2
+	sbatch --output=$OUTPUT/its1_threads_%A_%a.out  --error=$OUTPUT/its1-threads_%A_%a.err test_threads.sh $ITS1_merged/4774-4-MSITS2a.fasta $ITS1/r1/4774-4-MSITS2a_R1.fastq.gz $ITS1/r2/4774-4-MSITS2a_R2.fastq.gz $OUTPUT ITS1
+	sbatch --output=$OUTPUTits2_threads_%A_%a.out  --error=$OUTPUT/its2-threads_%A_%a.err test_threads.sh $ITS2_merged/4774-13-MSITS3.fasta $ITS2/r1/4774-4-MSITS3_R1.fastq.gz $ITS2/r2/4774-4-MSITS3_R2.fastq.gz $OUTPUT ITS2
 done

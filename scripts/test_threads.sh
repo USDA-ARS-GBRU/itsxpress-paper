@@ -33,7 +33,7 @@ logfile=$output/itsxpress_"$SLURM_JOB_ID"_"$SLURM_ARRAY_TASK_ID".log
 echo "Threads used: " $THREADS
 echo "itsxpress"
 /usr/bin/time  -v itsxpress --fastq $finfile --fastq2 $rinfile --outfile $outfile1 --tempdir $TMPDIR \
-  --region $sampletype --taxa Fungi --log logfile --threads $THREADS 
+  --region $sampletype --taxa Fungi --log logfile --threads $THREADS --cluster_id 0.995
 rm $outfile1
 rm $logfile
 

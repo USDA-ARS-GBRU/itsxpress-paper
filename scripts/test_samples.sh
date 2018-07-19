@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=its_samples
-#SBATCH --time=6:00:00
+#SBATCH --time=3:00:00
 #SBATCH --array=1-15
 #SBATCH -p short
 #SBATCH -N 1
@@ -31,14 +31,14 @@ itsxfile=${itsxarray[$SLURM_ARRAY_TASK_ID - 1]}
 bname=$output/`basename $finfile _R1.fastq.gz`
 logfile=$output/itsxpress_"$SLURM_JOB_ID"_"$SLURM_ARRAY_TASK_ID".log
 
-THREADS=40
+THREADS=4
 
 outfile1=$output/itsxpress_"$sampletype"_"$SLURM_JOB_ID"_"$SLURM_ARRAY_TASK_ID".fastq.gz
 outfile2=$output/itsx_"$sampletype"_"$SLURM_JOB_ID"_"$SLURM_ARRAY_TASK_ID"
 
 echo $finfile
 /usr/bin/time  -v itsxpress --fastq $finfile --fastq2 $rinfile --outfile $outfile1 --tempdir $TMPDIR \
-  --region $sampletype --taxa Fungi --log logfile --threads $THREADS
+  --region $sampletype --taxa Fungi --log $logfile --threads $THREADS --cluster_id .995
 
 
 

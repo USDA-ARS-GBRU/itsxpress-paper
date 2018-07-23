@@ -31,14 +31,14 @@ ITS2_derep=../data/its2_derep
 # files for summarizing vsearch data
 ITS1_derep_report=$analysis/its1_derep_report.txt
 ITS2_derep_report=$analysis/its2_derep_report.txt
-ITS1_derep_csv=$analysis/its1_derep_csv.txt
-ITS2_derep_csv=$analysis/its2_derep_csv.txt
+ITS1_derep_csv=$analysis/its1_derep.csv
+ITS2_derep_csv=$analysis/its2_derep.csv
 # Set the number of experimental reps
 reps=5
 
 
-#source activate itsxpresstestenv
-source activate /project/gbru_fy18_soybean_gardner/biopythontestenv/
+source activate itsxpresstestenv
+
 
 # Generate fasta files from fastq files
 for file in $ITS1/r1/*

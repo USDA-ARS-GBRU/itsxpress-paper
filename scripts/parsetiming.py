@@ -14,7 +14,7 @@ job_to_threads = {"1":1, "2":4, "3":8,"4":16, "5":30, "6":40}
 
 def myparser():
 	"""Creates parser object
-	
+
 	"""
 	parser = argparse.ArgumentParser(description="parsetiming.py: A script to reformat slurm log files.")
 	parser.add_argument('--indir', '-i', type=str, required=True,
@@ -26,10 +26,10 @@ def myparser():
 
 
 def time_string_to_secs(time_string):
-	""" Converts differetn time string formats to seconds.
-	
+	""" Converts different time string formats to seconds.
+
 	From http://lexfridman.com/python-robust-conversion-of-time-string-to-seconds-with-missing-values/
-	
+
 	"""
 	res = re.match('(\d\d?:)?(\d\d?:)?(\d\d?)(\.\d*)?$', time_string)
 	assert res is not None # above regex should match all reasonable input. Instead of assert, can return None
@@ -54,17 +54,17 @@ def time_string_to_secs(time_string):
 
 def checkfile(file):
 	"""Checks file to  to make sire itsx and itsxpress exited with an exit code of
-		O and that Itsxpress did not throw a fatal arror message
+		O and that ITSx did not throw a fatal error message
 	Args:
 		file: data file path
 
 	Returns:
 		Bool: True
-		
+
 	Raises:
-		AssertError: if two lines with Exit Status 0 are not present 
-		ValueError: if ITSx returned a fatal error message (needed becasue it does not return a nonzero exit status when doing so)
-		
+		AssertError: if two lines with Exit Status 0 are not present
+		ValueError: if ITSx returned a fatal error message (needed because ITSx does not return a nonzero exit status when doing so)
+
 	"""
 	status_count = 0
 	with open(file, "r") as f:
@@ -79,14 +79,14 @@ def checkfile(file):
 
 def parse_filename(file):
 	"""Parses filename returning categorical data about the sample
-	
+
 	Args:
 		file: data file path
 
 	Returns:
 		region (str): the region [its1 | its2]
 		exptype (str): the experiment type [samples | threads]
-		jobid (str): the jobid 
+		jobid (str): the jobid
 		sample (str): the sample number
 	"""
 	try:
@@ -100,20 +100,20 @@ def parse_filename(file):
 	except IndexError as e:
 		print("An error occured when parsing the filename {}. It should look like this file name its1_sample_4534523_1.err".format(file))
 		raise e
-		
 
-	
+
+
 def parse_sample_file(file):
 	"""Parse a single timing file
-	
+
 	Args:
 		file: data file path
 
 	Returns:
 		list: A list with the values [region, exptype, jobid, sample, itsx_sec, itsxpresss_sec]
-	 
+
 	Raises:
-		exxceptions from checkfile or time_string_to Secs
+		exceptions from checkfile or time_string_to Secs
 	"""
 	try:
 		checkfile(file)
@@ -138,8 +138,8 @@ def parse_sample_file(file):
 		print("Could not parse timing dat for file {}".format(file))
 		raise g
 	return tlist
-	
-	
+
+
 
 def main(args=None):
 	"""Parse data files in directory
@@ -159,6 +159,6 @@ def main(args=None):
 	df = pandas.DataFrame.from_records(datalist, columns=labels)
 	print(df)
 	df.to_csv(args.outfile)
-	
+
 if __name__ == "__main__":
 	main()

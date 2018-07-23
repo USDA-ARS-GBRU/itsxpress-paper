@@ -4,7 +4,7 @@
 #SBATCH --array=1-15
 #SBATCH -p short
 #SBATCH -N 1
-#SBATCH -n 40
+#SBATCH -n 4
 
 
 source activate itsxpresstestenv
@@ -34,7 +34,12 @@ logfile=$output/itsxpress_"$SLURM_JOB_ID"_"$SLURM_ARRAY_TASK_ID".log
 THREADS=4
 
 outfile1=$output/itsxpress_"$sampletype"_"$SLURM_JOB_ID"_"$SLURM_ARRAY_TASK_ID".fastq.gz
+outfile2=$output/itsx_"$sampletype"_"$SLURM_JOB_ID"_"$SLURM_ARRAY_TASK_ID"
 
 echo $finfile
 /usr/bin/time  -v itsxpress --fastq $finfile --fastq2 $rinfile --outfile $outfile1 --tempdir $TMPDIR \
-  --region $sampletype --taxa Fungi --log $logfile --threads $THREADS --cluster_id 1.0
+  --region $sampletype --taxa Fungi --log $logfile --threads $THREADS --cluster_id .995
+
+
+echo $itsxfile
+/usr/bin/time  -v ITSx -i  $itsxfile -o $outfile2 --cpu $THREADS --heuristics --save_regions $sampletype -t f

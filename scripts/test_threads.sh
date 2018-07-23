@@ -8,7 +8,7 @@
 
 
 #source activate itsxpresstestenv
-source activate /project/gbru_fy18_soybean_gardner/biopythontestenv/
+source activate itsxpresstestenv
 
 echo "Usage test_threads.sh [merged file] [forward file] [reverse file] [output dir] [sampletype its1|its2]"
 echo "My SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #compare_alignments.py fasta, fastq ['|F|ITS2' | '|F|TTS1']
+# A script calculate the differences between itsx and itsxpress alignments
 import sys
 from collections import Counter
 
@@ -33,5 +34,3 @@ for rec in f2:
 print(diffcnt.most_common())
 print(sum(ndiff)/len(ndiff))
 print(n)
-
-		

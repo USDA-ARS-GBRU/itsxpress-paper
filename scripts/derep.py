@@ -11,7 +11,7 @@ import argparse
 
 def myparser():
 	"""Creates parser object
-	
+
 	"""
 	parser = argparse.ArgumentParser(description="dedup.py: format vsearch output files")
 	parser.add_argument('--infile', '-i', type=str, required=True,
@@ -25,7 +25,13 @@ def myparser():
 
 def parse(filename, type):
 	""" parses Vsearch output returning a pandas dataframe
-	
+
+	Args:
+		filename (str): Name of the file to parse
+		type (str): dedup or cluster depending on which vsearch program was used
+
+	Returns
+		(obj): Pandas Dataframe object
 	"""
 	dat = {"sample":[], "seqs":[], "unique":[] }
 	with open(filename, 'r') as f:
@@ -39,7 +45,7 @@ def parse(filename, type):
 				elif ll[1] == 'unique' and type =='dedup':
 					dat["unique"].append(int(ll[0]))
 				elif ll[0] == 'Clusters:' and type =='cluster':
-					dat["unique"].append(int(ll[1]))		
+					dat["unique"].append(int(ll[1]))
 	# Add fraction column
 	dat["frac"] = list(np.array(dat['unique'])/np.array(dat['seqs']))
 	# Create dataframe
@@ -49,13 +55,16 @@ def parse(filename, type):
 
 def main(args=None):
 	"""Parse the input file writing a csv out
-	
+
+	Args:
+		args (list): A list of args
+
 	"""
 	parser = myparser()
 	if not args:
 		args = parser.parse_args()
 	df = parse(filename=args.infile, type=args.type)
 	df.to_csv(args.outfile)
-		
+
 if __name__ == '__main__':
 	main()

@@ -2,56 +2,75 @@
 
 ## Software Authors
 * Adam R. Rivers
-* Kyle Weber
+* Sveinn Einarsson
 
 ## Paper
 
-Rivers, A.R., Weber. K.C., Gardner T. G., Liu, S., and Armstrong, S.D. 2018.
-ITSxpress: software to rapidly trim internally transcribed spacer sequences
-with quality scores for marker gene analysis. F1000 Research.
-In prep.
+Version 2 - ITSxpress: Software to rapidly trim internally transcribed spacer sequences with quality scores for marker gene analysis. SoftwareX. In prep.
 
 ## Setup
 
 * Create an Conda environment. For instructions on installing Anaconda or Miniconda see this page:
 https://conda.io/miniconda.html
 * The workflow is designed to be run on a HPC with a SLURM scheduler
+* We recommend using mamba to install the software in the conda environment
 
 
 ```bash
 
 # Create a new conda test environment
-conda create --name itsxpresstestenv python=3.6 pandas
+mamba create --name itsxpressv2 python=3.8 
+mamba activate itsxpressv2
+mamba install -c bioconda itsxpress=2.0.1 itsx=1.1.3
 
-# activate the new environment
-source activate itsxpresstestenv
+mamba create --name itsxpressv1 python=3.8 
+mamba activate itsxpressv1
+mamba install -c bioconda itsxpress=1.8.1 itsx=1.1.3
 
-# Install itsxpress and ITSx into the new environment
-conda install -c bioconda itsxpress=1.6.1 itsx=1.1b
 
 ```
 
 ## Scripts
 
-The workflow is broken into two parts. The first script, `run1.sh` distributes
-tasks with the SLURM scheduler and creates the trimmed fastq's and timing data.
+The workflow is as follows:
+The first script, `run1.sh` distributes tasks with the SLURM scheduler and creates the trimmed fastq's and timing data for 
+comparison between ITSxpressV2, ITSxpressV1 and ITSx.
 Specifically it:
 
 * merges reads and creates fasta files for ITSx
 * De-replicates fasta files to estimate the proportion of unique reads
 * Creates a CSV file summarizing the number of unique reads with dedup.py
-* Submits the script `its_samples.sh` for the ITS1 and ITS2 regions to calculate the
- 	speedup from using ITSxpress
 * Submits `its_threads.sh` sbatch jobs for the its1 and its2 regions to understand
  	how the program scales with more cores
-* Submits the script `its_100_samples.sh` to compare alignment similarity at 100% identity clustering
+
+Next, we submit individual jobs to itsxpressV2 to trim reads with clustering set to 100% identity. This is done to compare alignment scores between ITSxpressV2 and ITSx.
+
+```bash
+itsxpress --fastq ../data/its1/r1/SRR10041227_ITS_amplicon_seqs_rumen_fluid_of_dairy_cows_1.fastq.gz --fastq2 ../data/its1/r2/SRR10041227_ITS_amplicon_seqs_rumen_fluid_of_dairy_cows_2.fastq.gz --outfile outITS1.fastq --tempdir ./ --region ITS1 --taxa Fungi --log logfileITS1.txt --threads 16 --cluster_id 1
 
 
-The second script, `run2.sh`, summarizes the data and creates graphs. specifically it:
+itsxpress --fastq ../data/its2/r1/SRR19882410_META-seq_of_Salar_de_Huasco_microbial_mat_1.fastq.gz --fastq2 ../data/its2/r2/SRR19882410_META-seq_of_Salar_de_Huasco_microbial_mat_2.fastq.gz --outfile outITS2.fastq --tempdir ./ --region ITS2 --taxa Fungi --log logfileITS2.txt --threads 16 --cluster_id 1
 
-* Creates CSV's summarizing the timing data for the sample and thread experiments
-* Runs pairwise alignment on the ITSx and ITSxpress results summarizing the differences
-* Creates the plots in the paper using itsxpress_plots.R
+
+```
+
+Then we use the `compare_alignments.py` script to compare the alignment scores between ITSxpressV2 and ITSx. This script requires the output from the previous step.
+
+```bash
+compare_alignments.py ../data/its1_merged/itsx.ITS1.fasta outITS1.fastq '|F|ITS1'
+compare_alignments.py ./its2/itsx_12347732_1.ITS2.fasta outITS2.fastq '|F|ITS2'
+
+```
+
+Next, we parse the timing data from the slurm output files with `parsetiming.py` and create a CSV file with the timing data.
+
+```bash
+
+parsetiming.py -i ../output/ -o timing.csv
+
+```
+
+Finally, to recreate the figure in the paper we use the jupyter notebook `Thread_figures.ipynb'
 
 
 ## Directory structure
@@ -76,14 +95,10 @@ The second script, `run2.sh`, summarizes the data and creates graphs. specifical
 |	  `-- its2_fasta
 |--scripts
 |   |-- run1.sh
-|   |-- run2.sh
 |   |-- derep.py
-|   |-- test_samples.sh
-|   |-- test_100_samples.sh
 |   |-- test_threads.sh
 |   |-- compare_alignments.py
 |   |-- parsetiming.py
-|   `-- plots.R
 |-- output
 |-- dedup_out
 |-- analysis

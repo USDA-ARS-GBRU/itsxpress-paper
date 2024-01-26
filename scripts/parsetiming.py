@@ -73,7 +73,7 @@ def checkfile(file):
 				status_count += 1
 			if "FATAL ERROR" in line:
 				raise ValueError("There was an issue with how itsx ran in the file {}".format(file))
-	assert (status_count==2),"There were not two nonzero exit codes in the file {}".format(file)
+	assert (status_count==3),"There were not four nonzero exit codes in the file {}".format(file)
 	return True
 
 
@@ -119,6 +119,7 @@ def parse_sample_file(file):
 		checkfile(file)
 		region, exptype, jobid, gridid = parse_filename(file)
 		tlist = [region, exptype, jobid, gridid]
+		print(tlist)
 		if tlist[1] == 'samples':
 			tlist.append(40)
 		elif tlist[1] == 'threads':
@@ -131,6 +132,9 @@ def parse_sample_file(file):
 				if "Elapsed (wall clock) time (h:mm:ss or m:ss):" in line:
 					seconds = time_string_to_secs(line.strip().split()[7])
 					tlist.append(seconds)
+				elif "Total number of reads in file" in line:
+					totalcounts = line.strip('.').split()[11]
+					tlist.append(totalcounts)
 	except FileNotFoundError as f:
 		print("Could not find the file {}".format(file))
 		raise f
@@ -150,12 +154,15 @@ def main(args=None):
 		args = parser.parse_args()
 	datalist = []
 	for file in glob.glob(os.path.join(os.path.join(args.indir,"*.err"))):
+		print(file)
 		try:
 			datalist.append(parse_sample_file(file))
 		except Exception as e:
 			print(e)
 			continue
-	labels = ["region", "experiment_type", "jobid", "sample", "threads", "itsxpress_sec", "itsx_sec"]
+	#,"itsxpress_sec_zst"
+	labels = ["region", "experiment_type", "jobid", "sample", "threads","V2_totalinputcount_R1","V2_totalinputcount_R2","V2_totaloutputcount","V2_Time_elapsed","V1_totalinputcount_R1","V1_totaloutputcount","V1__Time_elapsed","ITSx_time_elapsed"]
+	print(datalist)
 	df = pandas.DataFrame.from_records(datalist, columns=labels)
 	print(df)
 	df.to_csv(args.outfile)

@@ -6,7 +6,7 @@
 
 ## Paper
 
-Version 2 - ITSxpress: Software to rapidly trim internally transcribed spacer sequences with quality scores for marker gene analysis. SoftwareX. In prep.
+Version 2 - ITSxpress: Software to rapidly trim internally transcribed spacer sequences with quality scores for marker gene analysis. Microbiology Spectrum. In prep.
 
 ## Setup
 

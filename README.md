@@ -58,7 +58,7 @@ Then we use the `compare_alignments.py` script to compare the alignment scores b
 
 ```bash
 compare_alignments.py ../data/its1_merged/itsx.ITS1.fasta outITS1.fastq '|F|ITS1'
-compare_alignments.py ./its2/itsx_12347732_1.ITS2.fasta outITS2.fastq '|F|ITS2'
+compare_alignments.py ../data/its2_merged/itsx_12347732_1.ITS2.fasta outITS2.fastq '|F|ITS2'
 
 ```
 
